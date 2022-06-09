@@ -606,6 +606,10 @@ class KlipperScreen(Gtk.Window):
         self.base_panel.get().put(box, 0, 0)
         self.show_all()
         self.screensaver = box
+
+        # Turn off HDMI power (Raspbery Pi)
+        os.system("vcgencmd display_power 0")
+
         return False
 
     def close_screensaver(self, widget=None):
@@ -619,6 +623,8 @@ class KlipperScreen(Gtk.Window):
         else:
             self.screensaver_timeout = GLib.timeout_add_seconds(self.blanking_time, self.show_screensaver)
         self.show_all()
+        # Turn on HDMI power (Raspbery Pi)
+        os.system("vcgencmd display_power 1")
         return False
 
     def check_dpms_state(self):
