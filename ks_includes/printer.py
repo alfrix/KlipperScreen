@@ -20,6 +20,7 @@ class Printer:
         self.fancount = 0
         self.ledcount = 0
         self.output_pin_count = 0
+        self.has_mmu = False  # Happy Hare
         self.store_timeout = None
         self.tempstore = {}
         self.busy_cb = busy_cb
@@ -39,6 +40,7 @@ class Printer:
         self.fancount = 0
         self.ledcount = 0
         self.output_pin_count = 0
+        self.has_mmu = False  # Happy Hare
         self.tempstore = {}
         self.busy = False
         if not self.store_timeout:
@@ -78,6 +80,8 @@ class Printer:
                     self.fancount += 1
             if x.startswith('output_pin ') and not x.split()[1].startswith("_"):
                 self.output_pin_count += 1
+            if x == 'mmu':  # Happy Hare
+                self.has_mmu = True
             if x.startswith('bed_mesh '):
                 try:
                     r = self.config[x]
@@ -105,12 +109,14 @@ class Printer:
         logging.info(f"# Temperature devices: {self.tempdevcount}")
         logging.info(f"# Fans: {self.fancount}")
         logging.info(f"# Output pins: {self.output_pin_count}")
+        logging.info(f"# Has MMU: {self.has_mmu}")  # Happy Hare
         logging.info(f"# Leds: {self.ledcount}")
 
     def process_update(self, data):
         if self.data is None:
             return
-        for x in (self.get_temp_devices() + self.get_filament_sensors()):
+        for x in (
+                self.get_temp_devices() + self.get_filament_sensors() + self.get_mmu_encoders()):
             if x in data:
                 for i in data[x]:
                     self.set_dev_stat(x, i, data[x][i])
@@ -124,6 +130,12 @@ class Printer:
 
         if "webhooks" in data or "print_stats" in data or "idle_timeout" in data:
             self.process_status_update()
+
+    def register_callback(self, var, method, arg):
+        if var in self.printer_callbacks:
+            self.printer_callbacks[var].append([method, arg])
+        else:
+            self.printer_callbacks[var] = [[method, arg]]
 
     def evaluate_state(self):
         # webhooks states: startup, ready, shutdown, error
@@ -236,6 +248,9 @@ class Printer:
         sensors.extend(iter(self.get_config_section_list("filament_motion_sensor ")))
         return sensors
 
+    def get_mmu_encoders(self):  # Happy Hare
+        return list(self.get_config_section_list("mmu_encoder"))
+
     def get_probe(self):
         probe_types = ["probe", "bltouch", "smart_effector", "dockable_probe"]
         for probe_type in probe_types:
@@ -244,6 +259,7 @@ class Printer:
                 return self.get_config_section(probe_type)
         return None
 
+    # Called only from main menu and generic menu panels for variable evaluation
     def get_printer_status_data(self):
         data = {
             "printer": {
@@ -260,6 +276,9 @@ class Printer:
                 "leds": {"count": self.ledcount},
             }
         }
+
+        if self.has_mmu:  # Happy Hare
+            data["printer"]["mmu"] = self.get_stat("mmu")
 
         sections = ["bed_mesh", "bltouch", "probe", "quad_gantry_level", "z_tilt"]
         for section in sections:

@@ -611,3 +611,133 @@ popover button {
 }
 
 .graph_label {border-left-width: .4em; border-left-style: solid;}
+
+.mmu_runout slider, .mmu_runout highlight, .mmu_runout fill {
+    min-height: 0;
+}
+
+.mmu_runout trough {
+    margin-top: 0;
+}
+
+.mmu_tool_image {
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.mmu_entry_text {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    font-size: 1.8em;
+}
+
+.mmu_color_swatch {
+    font-size: 2.8em;
+}
+
+.mmu_sensor_text {
+    font-size: 1.6em;
+}
+
+.mmu_sel_increase {
+    margin-left: 10px;
+    margin-right: 25px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.mmu_sel_decrease {
+    margin-left: 25px;
+    margin-right: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.mmu_tool_text {
+    margin-top: 6px;
+    margin-bottom: 6px;
+    font-size: 1.8em;
+}
+
+.mmu_gate_text {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-size: 1.2em;
+}
+
+.mmu_available_text {
+    font-size: 0.8em;
+}
+
+.mmu_material_text {
+    font-size: 1.2em;
+}
+
+.mmu_spool_id_text {
+    font-size: 1.2em;
+}
+
+.mmu_status {
+    background: transparent;
+    margin-left: 8px;
+    font-family: Free Mono;
+    font-size: 1em;
+    border: 0;
+    padding: 0;
+}
+
+.mmu_status_filament {
+    margin-left: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.mmu_recover check {
+    padding: 0.2em;
+}
+
+.mmu_recover, .mmu_recover label {
+    background: transparent;
+    font-size: 1.1em;
+}
+
+.mmu_disabled_text {
+    color: grey;
+}
+
+.mmu_es_gate {
+    border: .15em transparent;
+    margin-left: 0;
+    margin-right: 0;
+    border-top-left-radius: .5em;
+    border-bottom-left-radius: .5em;
+    border-top-right-radius: .5em;
+    border-bottom-right-radius: .5em;
+    min-height: 2em;
+}
+
+.mmu_endless_spool_toggle {
+    padding-bottom: .6em;
+}
+
+.mmu_spoolman_gate_text {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 1.2em;
+    color: #a0a0a0;
+}
+
+.mmu_spoolman_material_text {
+    font-size: 1.2em;
+}
+
+.mmu_spoolman_tool_text {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 1.2em;
+}
+
+.mmu_spoolman_color_swatch {
+    font-size: 2.3em;
+    padding-bottom: 6px;
+}

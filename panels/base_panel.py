@@ -45,6 +45,17 @@ class BasePanel(ScreenPanel):
         self.control['shortcut'].connect("clicked", self.menu_item_clicked, self.shorcut)
         self.control['shortcut'].set_no_show_all(True)
 
+        # Happy Hare vvv
+        self.mmu_shortcut = {
+            "name": "MMU",
+            "panel": "mmu_main",
+            "icon": "mmu_carrot",
+        }
+        self.control['mmu_shortcut'] = self._gtk.Button(self.mmu_shortcut['icon'], scale=abscale)
+        self.control['mmu_shortcut'].connect("clicked", self._screen._menu_go_to, 'mmu_main', "MMU")
+        self.control['mmu_shortcut'].set_no_show_all(True)
+        # Happy Hare ^^^
+
         # Any action bar button should close the keyboard
         for item in self.control:
             self.control[item].connect("clicked", self._screen.remove_keyboard)
@@ -61,6 +72,7 @@ class BasePanel(ScreenPanel):
         self.action_bar.set_size_request(self._gtk.action_bar_width, self._gtk.action_bar_height)
         self.action_bar.add(self.control['back'])
         self.action_bar.add(self.control['home'])
+        self.action_bar.add(self.control['mmu_shortcut'])  # Happy Hare
         self.action_bar.add(self.control['printer_select'])
         self.action_bar.add(self.control['shortcut'])
         self.action_bar.add(self.control['estop'])
@@ -186,6 +198,8 @@ class BasePanel(ScreenPanel):
     def add_content(self, panel):
         show = self._printer is not None and self._printer.state not in ('disconnected', 'startup', 'shutdown', 'error')
         self.show_shortcut(show)
+        self.show_mmu_shortcut(
+            show and self._config.get_main_config().getboolean('side_mmu_shortcut', True) and self._printer.has_mmu)
         self.show_heaters(show)
         self.set_control_sensitive(show, control='estop')
         for control in ('back', 'home'):
@@ -265,6 +279,10 @@ class BasePanel(ScreenPanel):
         )
         self.control['shortcut'].set_visible(show)
         self.set_control_sensitive(self._screen._cur_panels[-1] != self.shorcut['panel'])
+
+    def show_mmu_shortcut(self, show=True):  # Happy Hare
+        self.control['mmu_shortcut'].set_visible(show)
+        self.set_control_sensitive(self._screen._cur_panels[-1] != self.mmu_shortcut['panel'], control='mmu_shortcut')
 
     def show_printer_select(self, show=True):
         self.control['printer_select'].set_visible(show)

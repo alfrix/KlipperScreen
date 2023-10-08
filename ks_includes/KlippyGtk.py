@@ -189,11 +189,13 @@ class KlippyGtk:
         return b
 
     @staticmethod
-    def Button_busy(widget, busy):
+    # Happy Hare: added change_sensitive to avoid collision with dynamic state buttons
+    def Button_busy(widget, busy, change_sensitive):
         spinner = find_widget(widget, Gtk.Spinner)
         image = find_widget(widget, Gtk.Image)
         if busy:
-            widget.set_sensitive(False)
+            if change_sensitive:
+                widget.set_sensitive(False)
             if image:
                 widget.set_always_show_image(False)
                 image.hide()
@@ -207,7 +209,8 @@ class KlippyGtk:
             if spinner:
                 spinner.stop()
                 spinner.hide()
-            widget.set_sensitive(True)
+            if change_sensitive:
+                widget.set_sensitive(True)
 
     def Dialog(self, title, buttons, content, callback=None, *args):
         dialog = Gtk.Dialog(title=title)
