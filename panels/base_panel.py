@@ -12,6 +12,13 @@ from contextlib import suppress
 from ks_includes.screen_panel import ScreenPanel
 
 
+def format_status(response):
+    response = response.strip().replace('\n', ' | ').replace('// ', '').replace('!! ', '')
+    if response.startswith('echo: '):
+        response = response[6:]
+    return response
+
+
 class BasePanel(ScreenPanel):
     def __init__(self, screen, title):
         super().__init__(screen, title)
@@ -89,6 +96,11 @@ class BasePanel(ScreenPanel):
         self.titlebar.add(self.titlelbl)
         self.titlebar.add(self.control['time_box'])
 
+        self.status_bar = Gtk.Label(lines=1, hexpand=True, vexpand=False, wrap=True)
+        self.status_bar.set_halign(Gtk.Align.START)
+        self.status_bar.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
+        self.status_bar.set_ellipsize(Pango.EllipsizeMode.END)
+
         # Main layout
         self.main_grid = Gtk.Grid()
 
@@ -104,6 +116,12 @@ class BasePanel(ScreenPanel):
             self.main_grid.attach(self.content, 1, 1, 1, 1)
 
         self.update_time()
+
+    def show_statusbar(self, show=True):
+        if show:
+            self.content.pack_end(self.status_bar, False, False, 0)
+        elif self.status_bar in self.content:
+            self.content.remove(self.status_bar)
 
     def show_heaters(self, show=True):
         try:
@@ -193,6 +211,7 @@ class BasePanel(ScreenPanel):
         self.current_panel = panel
         self.set_title(panel.title)
         self.content.add(panel.content)
+        self.show_statusbar(self._config.get_main_config().getboolean("status_bar", True))
 
     def back(self, widget=None):
         if self.current_panel is None:
@@ -223,6 +242,8 @@ class BasePanel(ScreenPanel):
                             self._screen.updating = False
                             for dialog in self._screen.dialogs:
                                 self._gtk.remove_dialog(dialog)
+        if action == "notify_gcode_response":
+            self.status_bar.set_text(format_status(data))
 
         if action != "notify_status_update" or self._screen.printer is None:
             return

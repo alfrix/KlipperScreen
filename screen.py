@@ -700,6 +700,9 @@ class KlipperScreen(Gtk.Window):
             )
         self.base_panel.show_shortcut(show)
 
+    def toggle_statusbar(self, show):
+        self.base_panel.show_statusbar(show)
+
     def change_language(self, widget, lang):
         self._config.install_language(lang)
         self.lang_ltr = set_text_direction(lang)

@@ -22,11 +22,6 @@ class Panel(ScreenPanel):
         self.calibrate_btn = self._gtk.Button("move", _('Finding ADXL'), "color1", lines=1)
         self.calibrate_btn.connect("clicked", self.on_popover_clicked)
         self.calibrate_btn.set_sensitive(False)
-        self.status = Gtk.Label()
-        self.status.set_hexpand(True)
-        self.status.set_vexpand(False)
-        self.status.set_halign(Gtk.Align.START)
-        self.status.set_ellipsize(Pango.EllipsizeMode.END)
         self.calibrating_axis = None
         self.calibrating_axis = None
 
@@ -82,7 +77,6 @@ class Panel(ScreenPanel):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.add(auto_grid)
         box.add(input_grid)
-        box.add(self.status)
 
         self.content.add(box)
 
@@ -152,7 +146,6 @@ class Panel(ScreenPanel):
     def process_update(self, action, data):
         if action != "notify_gcode_response":
             return
-        self.status.set_text(f"{data.replace('shaper_', '').replace('damping_', '')}")
         data = data.lower()
         if 'got 0' in data:
             self.calibrate_btn.set_label(_('Check ADXL Wiring'))
