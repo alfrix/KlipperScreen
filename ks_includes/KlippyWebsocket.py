@@ -2,6 +2,8 @@
 
 import json
 import logging
+import os
+import socket
 import threading
 
 import gi
@@ -61,6 +63,22 @@ class KlippyWebsocket(threading.Thread):
         self.ssl = int(self.port) in {443, 7130} if ssl is None else bool(ssl)
         self.header = {"x-api-key": api_key} if api_key else {}
         self.api_key = api_key
+        self.uds_path = self._resolve_uds_path(host)
+        self._use_unix_socket = self.uds_path is not None
+        self._uds_sock = None
+
+    @staticmethod
+    def _resolve_uds_path(host):
+        """Detect if host is a Unix socket path or resolve to default socket."""
+        default_socket = os.path.expanduser("~/printer_data/comms/moonraker.sock")
+        if not host or not host.strip():
+            return default_socket
+        host = host.strip()
+        if host.startswith("/"):
+            return host
+        if host in ("127.0.0.1", "localhost", "::1"):
+            return default_socket
+        return None
 
     @property
     def _url(self):
@@ -68,6 +86,8 @@ class KlippyWebsocket(threading.Thread):
 
     @property
     def ws_proto(self):
+        if self._use_unix_socket:
+            return "ws"
         return "wss" if self.ssl else "ws"
 
     def initial_connect(self):
@@ -91,7 +111,25 @@ class KlippyWebsocket(threading.Thread):
             on_open=self.on_open,
             header=self.header,
         )
-        self._wst = threading.Thread(target=self.ws.run_forever, daemon=True)
+        if self._use_unix_socket:
+            try:
+                self._uds_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+                self._uds_sock.connect(self.uds_path)
+                logging.debug(f"Connected to Unix socket: {self.uds_path}")
+                self._orig_create_connection = websocket.create_connection
+
+                def _patched_create_connection(*args, **kwargs):
+                    return self._uds_sock
+
+                websocket.create_connection = _patched_create_connection
+                self._wst = threading.Thread(target=self.ws.run_forever, daemon=True)
+            except (FileNotFoundError, ConnectionRefusedError, PermissionError) as e:
+                logging.warning(f"Unix socket {self.uds_path} failed ({e}), falling back to TCP")
+                self._uds_sock = None
+                self._use_unix_socket = False
+                self._wst = threading.Thread(target=self.ws.run_forever, daemon=True)
+        else:
+            self._wst = threading.Thread(target=self.ws.run_forever, daemon=True)
         try:
             logging.debug("Starting websocket thread")
             self._wst.start()
@@ -107,6 +145,14 @@ class KlippyWebsocket(threading.Thread):
         if self.ws is not None:
             self.ws.keep_running = False
             self.ws.close()
+        if self._uds_sock is not None:
+            try:
+                self._uds_sock.close()
+            except Exception:
+                pass
+            self._uds_sock = None
+        if hasattr(self, "_orig_create_connection"):
+            websocket.create_connection = self._orig_create_connection
 
     def on_message(self, *args):
         message = args[1] if len(args) == 2 else args[0]
