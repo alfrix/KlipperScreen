@@ -1,0 +1,19 @@
+- name: Run Ruff Linter
+        uses: astral-sh/ruff-action@v4.0.0
+        with:
+          version: "latest"
+          args: "check --fix"
+          src: >-
+            screen.py
+            ks_includes
+            panels
+
+      - name: Run Ruff Formatter
+        uses: astral-sh/ruff-action@v4.0.0
+        with:
+          version: "latest"
+          args: "format"
+          src: >-
+            screen.py
+            ks_includes
+            panels
