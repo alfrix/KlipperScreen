@@ -381,6 +381,7 @@ class Panel(ScreenPanel):
             self.flow_timeout = GLib.timeout_add_seconds(2, self.update_flow)
         if self.animation_timeout is None:
             self.animation_timeout = GLib.timeout_add(500, self.animate_label)
+        self.show_buttons_for_state()
 
     def deactivate(self):
         if self.flow_timeout is not None:
@@ -837,7 +838,7 @@ class Panel(ScreenPanel):
             self.state = state
             if self.thumb_dialog:
                 self.close_dialog(self.thumb_dialog)
-        self.show_buttons_for_state()
+            self.show_buttons_for_state()
 
     def _add_timeout(self, timeout):
         self._screen.screensaver.close()
