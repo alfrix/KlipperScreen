@@ -996,6 +996,11 @@ class KlipperScreen(Gtk.ApplicationWindow):
             key = key.strip()
             value = value.strip()
             params = {key: ast.literal_eval(value)}
+            if key == "panel_name":
+                # panel_name is the key into self.panels; an arbitrary value
+                # from a macro would grow it without bound. Reject it.
+                logging.warning("Ignoring panel_name in ks_show action for panel '%s'", panel)
+                return
             self.show_panel(panel, **params)
         else:
             self.show_panel(*action)
