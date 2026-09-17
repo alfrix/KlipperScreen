@@ -1533,6 +1533,9 @@ class KlipperScreenApplication(Gtk.Application):
 
     @staticmethod
     def _on_destroy(win):
+        if win.check_dpms_timeout is not None:
+            GLib.source_remove(win.check_dpms_timeout)
+            win.check_dpms_timeout = None
         win.gtk.shutdown()
 
 
