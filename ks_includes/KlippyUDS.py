@@ -18,7 +18,6 @@ class KlippyUDS(threading.Thread):
     _req_id = 0
     connected = False
     connecting = False
-    callback_table = {}
     _lock = threading.Lock()
 
     def __init__(self, callback, socket_path, port=None, path="", ssl=None):
@@ -26,6 +25,7 @@ class KlippyUDS(threading.Thread):
         self._wst = None
         self._callback = callback
         self.api = MoonrakerApi(self)
+        self.callback_table = {}
         self.sock = None
         self.closing = False
         self.socket_path = os.path.expanduser(socket_path)
@@ -71,6 +71,7 @@ class KlippyUDS(threading.Thread):
         logging.debug("Closing UDS connection")
         self.closing = True
         self.connecting = False
+        self.callback_table.clear()
         if self.sock is not None:
             try:
                 self.sock.close()
@@ -98,6 +99,7 @@ class KlippyUDS(threading.Thread):
 
         self.connected = False
         self.connecting = False
+        self.callback_table.clear()
         if "on_close" in self._callback:
             GLib.idle_add(
                 self._callback["on_close"], "Connection closed", priority=GLib.PRIORITY_HIGH_IDLE
