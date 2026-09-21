@@ -208,9 +208,9 @@ create_virtualenv()
 
     if [[ "$(uname -m)" =~ armv[67]l ]]; then
         echo_text "Using armv[67]l! Adding piwheels.org as extra index..."
-        pip --disable-pip-version-check install --extra-index-url https://www.piwheels.org/simple -r ${KSPATH}/scripts/KlipperScreen-requirements.txt
+        pip --disable-pip-version-check install --extra-index-url https://www.piwheels.org/simple -r "${KSPATH}/scripts/KlipperScreen-requirements.txt"
     else
-        pip --disable-pip-version-check install -r ${KSPATH}/scripts/KlipperScreen-requirements.txt
+        pip --disable-pip-version-check install -r "${KSPATH}/scripts/KlipperScreen-requirements.txt"
     fi
     if [ $? -gt 0 ]; then
         echo_error "Error: pip install exited with status code $?"
@@ -219,10 +219,10 @@ create_virtualenv()
         if [[ "$(uname -m)" =~ armv[67]l ]]; then
             echo_text "Adding piwheels.org as extra index..."
             pip install --extra-index-url https://www.piwheels.org/simple --upgrade pip setuptools
-            pip install --extra-index-url https://www.piwheels.org/simple -r ${KSPATH}/scripts/KlipperScreen-requirements.txt --prefer-binary
+            pip install --extra-index-url https://www.piwheels.org/simple -r "${KSPATH}/scripts/KlipperScreen-requirements.txt" --prefer-binary
         else
             pip install --upgrade pip setuptools
-            pip install -r ${KSPATH}/scripts/KlipperScreen-requirements.txt --prefer-binary
+            pip install -r "${KSPATH}/scripts/KlipperScreen-requirements.txt" --prefer-binary
         fi
         if [ $? -gt 0 ]; then
             echo_error "Unable to install dependencies, aborting install."
