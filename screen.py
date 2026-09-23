@@ -1274,17 +1274,24 @@ class KlipperScreen(Gtk.ApplicationWindow):
             self.show_popup_message(popup, level)
         if "power" in self.server_info["components"]:
             self._ws.api.get_power_devices(self.set_power_devices)
+        else:
+            self.init_klipper()
         if "webcam" in self.server_info["components"]:
             self._ws.api.list_webcams(self.set_cameras)
         if "spoolman" in self.server_info["components"]:
             self.printer.enable_spoolman()
-        self.init_klipper()
 
     def set_power_devices(self, data, method, params):
-        self.printer.configure_power_devices(data["result"])
-        screen_on_devices = self._config.get_main_config().get("screen_on_devices", "")
-        if screen_on_devices:
-            self.power_devices(widget=None, devices=screen_on_devices, on=True)
+        if "error" in data:
+            logging.error(
+                f"Error getting power devices: {data['error'].get('message', 'Unknown error')}"
+            )
+        else:
+            self.printer.configure_power_devices(data["result"])
+            screen_on_devices = self._config.get_main_config().get("screen_on_devices", "")
+            if screen_on_devices:
+                self.power_devices(widget=None, devices=screen_on_devices, on=True)
+        self.init_klipper()
 
     def set_cameras(self, data, method, params):
         self.printer.configure_cameras(data["result"]["webcams"])
