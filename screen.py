@@ -1205,8 +1205,10 @@ class KlipperScreen(Gtk.ApplicationWindow):
             return
         devs = self.search_power_devices(devices)
         if on:
+            self.log_notification(_("Powering on:") + f" {devices}")
             self._ws.api.power_device_on(devs)
         else:
+            self.log_notification(_("Powering off:") + f" {devices}")
             self._ws.api.power_device_off(devs)
 
     def _init_printer(self, msg, go_to_splash=False):
